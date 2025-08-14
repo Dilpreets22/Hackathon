@@ -31,13 +31,6 @@ router.get(
 // --- Example Protected Routes ---
 router.get("/me", protect, getMe);
 
-router.get("/admin", protect, authorize("admin"), (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Welcome, Admin! You have accessed a protected admin route.",
-  });
-});
-
 router.post("/set-password", protect, async (req, res) => {
   const { password } = req.body;
 

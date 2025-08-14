@@ -7,7 +7,7 @@ dotenv.config();
 // --- Registration Controller ---
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phoneNumber, role } = req.body;
+    const { name, email, password, phoneNumber } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -32,7 +32,6 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword, // Store the hashed password
       phoneNumber,
-      role, // If role is not provided, it will default to 'user' based on our schema
     });
 
     // Save the user to the database
@@ -40,11 +39,10 @@ exports.register = async (req, res) => {
 
     // Create JWT Token
     // The token payload is the data we want to store in the token.
-    // We'll store the user's ID and role.
+    // We'll store the user's ID
     const payload = {
       user: {
         id: user.id,
-        role: user.role,
       },
     };
 
@@ -103,8 +101,7 @@ exports.login = async (req, res) => {
     // Create and return a JWT
     const payload = {
       user: {
-        id: user.id,
-        role: user.role,
+        id: user.id
       },
     };
 
@@ -115,11 +112,14 @@ exports.login = async (req, res) => {
       (err, token) => {
         if (err) throw err;
 
+        const userWithoutPassword = user.toObject();
+        delete userWithoutPassword.password;
+
         res.status(200).json({
           success: true,
           message: "Logged in successfully",
           token: token,
-          role: user.role,
+          user: userWithoutPassword // returning the user data
         });
       }
     );
@@ -140,8 +140,7 @@ exports.googleCallback = async (req, res) => {
   const user = await User.findById(req.user.id).select("+password");
   const payload = {
     user: {
-      id: user.id,
-      role: user.role,
+      id: user.id
     },
   };
 

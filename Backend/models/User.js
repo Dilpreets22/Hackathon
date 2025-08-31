@@ -29,7 +29,10 @@ const userSchema = new mongoose.Schema(
     googleId: {
       type: String,
     },
-    linkedinId: {
+    plaidAccessToken: {
+      type: String,
+    },
+    plaidItemId: {
       type: String,
     },
   },

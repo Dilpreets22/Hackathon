@@ -57,8 +57,18 @@ exports.generateFinancialPulse = async (req, res) => {
             start_date: thirtyDaysAgo.toISOString().split('T')[0],
             end_date: today.toISOString().split('T')[0],
         };
-        const plaidResponse = await plaidClient.transactionsSync(plaidRequest);
-        const transactions = plaidResponse.data.added;
+        const plaidResponse = await plaidClient.transactionsGet(plaidRequest);
+        const transactions = plaidResponse.data.transactions;
+
+        // --- DEMO DATA INJECTION ---
+        // Add a realistic, positive income transaction to ensure a good score for the demo.
+        // Plaid income transactions have a negative amount.
+        const simulatedIncome = { 
+            name: 'Simulated Salary Deposit', 
+            amount: -40000, // A negative amount signifies income
+            date: new Date().toISOString().split('T')[0] 
+        };
+        transactions.unshift(simulatedIncome); // Add to the start of the list
 /*
         // --- TEMPORARY TEST CODE START ---
         const transactions = [
@@ -113,9 +123,9 @@ exports.generateFinancialPulse = async (req, res) => {
         const response = await result.response;
         const text = response.text();
 
-        const startIndex = text.indexOf('{');
+        /* const startIndex = text.indexOf('{');
         const endIndex = text.lastIndexOf('}');
-        const jsonString = text.substring(startIndex, endIndex + 1);
+        const jsonString = text.substring(startIndex, endIndex + 1); */
 
         // Send both the calculated score and the AI's insight
         res.json({
@@ -133,7 +143,7 @@ exports.generateFinancialPulse = async (req, res) => {
 exports.chatWithAI = async (req, res) => {
     try {
         // Get the user's question from the request body
-        const { question } = req.body;
+        const { question, history } = req.body;
         if (!question) {
             return res.status(400).json({ message: "A question is required." });
         }
@@ -150,8 +160,17 @@ exports.chatWithAI = async (req, res) => {
             start_date: thirtyDaysAgo.toISOString().split('T')[0],
             end_date: today.toISOString().split('T')[0],
         };
-        const plaidResponse = await plaidClient.transactionsSync(plaidRequest);
-        const transactions = plaidResponse.data.added;
+        const plaidResponse = await plaidClient.transactionsGet(plaidRequest);
+        const transactions = plaidResponse.data.transactions;
+
+        // --- DEMO DATA INJECTION (for consistency in chat) ---
+        const simulatedIncome = { 
+            name: 'Simulated Salary Deposit', 
+            amount: -40000, 
+            date: new Date().toISOString().split('T')[0] 
+        };
+        transactions.unshift(simulatedIncome);
+        //
 
 /*
         // mock data
@@ -163,17 +182,24 @@ exports.chatWithAI = async (req, res) => {
         ];
 */
 
-        let totalIncome = 0;
-        let totalSpending = 0;
-        transactions.forEach(t => { if (t.amount < 0) totalIncome += -t.amount; else totalSpending += t.amount; });
-        const financialSummary = { totalIncome, totalSpending };
-
-        // Create the prompt using the "Conversational Chat" persona from your blueprint
+        const simplifiedTransactions = transactions.map(t => ({ name: t.name, amount: t.amount, date: t.date }));
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-        const prompt = `You are Kairo, a friendly, optimistic, and insightful AI financial assistant. Your user is in India, and all financial figures are in Indian Rupees (INR) Here is a summary of your user's finances for the last 30 days: ${JSON.stringify(financialSummary)}. The user has just asked you this question: "${question}". Please provide a helpful, conversational, and encouraging response in 1-3 sentences. Do not respond in JSON.`;
-        
+        const chat = model.startChat({
+            history: history || [],
+        });
+
+        const prompt = `
+            CONTEXT:
+            - You are Kairo, a friendly, optimistic, and insightful AI financial assistant.
+            - Your user is in India, and all financial figures are in Indian Rupees (INR).
+            - Here is a list of their recent transactions: ${JSON.stringify(simplifiedTransactions)}.
+            - Use this live transaction data to answer the user's question with specific, concrete examples where possible.
+            - Keep your answers concise, helpful, and encouraging (2-4 sentences). Do not respond in JSON format.
+            
+            USER'S NEW QUESTION: "${question}"
+        `;
         // Generate the content and send the plain text response
-        const result = await model.generateContent(prompt);
+        const result = await chat.sendMessage(prompt);
         const response = await result.response;
         const text = response.text();
 

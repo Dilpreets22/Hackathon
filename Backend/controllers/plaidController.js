@@ -83,13 +83,21 @@ exports.getTransactions = async (req, res) => {
     };
 
     // Make the API call to Plaid to get transactions
-    const response = await plaidClient.transactionsSync(plaidRequest);
-    
-    // Extract the transactions from the response
-    const transactions = response.data.added;
+    const response = await plaidClient.transactionsGet(plaidRequest);
+    const rawTransactions = response.data.transactions;
 
-    // Send the transactions back to the frontend
-    res.json({ transactions });
+    // --- NEW: Transform the raw data into a clean, simple format ---
+    const simplifiedTransactions = rawTransactions.map(t => ({
+        id: t.transaction_id,
+        name: t.merchant_name || t.name, // Use merchant name if available, otherwise the default name
+        amount: t.amount,
+        currency: t.iso_currency_code,
+        date: t.date,
+        logo_url: t.logo_url // This is useful for the frontend UI
+    }));
+
+    // --- Send the NEW simplified list to the frontend ---
+    res.json({ transactions: simplifiedTransactions });
 
   } catch (error) {
     console.error("Error fetching transactions:", error.response ? error.response.data : error.message);

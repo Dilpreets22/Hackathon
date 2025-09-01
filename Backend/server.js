@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
+const plaidRoutes = require('./routes/plaid');
+const aiRoutes = require('./routes/ai');
 const passport = require("passport");
 const cors = require("cors");
 
@@ -27,6 +29,8 @@ app.use(passport.initialize());
 
 // Define Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/plaid', plaidRoutes);
+app.use('/api/ai', aiRoutes); 
 
 app.get('/', (req, res) => {
     res.send('API is running...');

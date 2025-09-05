@@ -1,7 +1,7 @@
 const page = () => {
   return (
     <div>
-      financial pluse 
+      Transactions 
     </div>
   )
 }

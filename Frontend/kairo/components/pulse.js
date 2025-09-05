@@ -1,27 +1,29 @@
 // components/FinancialPulse.tsx
 "use client";
-
+import axios from "axios";
 import { useState, useEffect } from "react";
 
 export default function FinancialPulse() {
-  // Local state for score (default 50)
-  const [score, setScore] = useState(50);
+  // Local state for score (default 0)
+  const [score, setScore] = useState(0);
 
-  // Example backend logic (commented out)
-  /*
   useEffect(() => {
     async function fetchScore() {
       try {
-        const res = await fetch("/api/score"); // Your backend API
-        const data = await res.json();
-        setScore(data.score); // Update score from backend
+        const res = await axios.get(" "); // Your backend API
+        setScore(res.data.score); // Update score from backend
       } catch (error) {
         console.error("Error fetching score:", error);
       }
     }
+
     fetchScore();
+
+    // Optional: poll the backend every 5s for live updates
+    const interval = setInterval(fetchScore, 5000);
+
+    return () => clearInterval(interval);
   }, []);
-  */
 
   return (
     <div className="max-w-md mx-auto bg-white shadow-lg rounded-2xl p-6">
@@ -36,13 +38,13 @@ export default function FinancialPulse() {
 
       <div className="mb-2 font-medium">Score</div>
       <div className="flex justify-between items-center">
-        {/* Slider */}
+        {/* Read-only slider (only backend controls value) */}
         <input
           type="range"
           min={0}
           max={100}
           value={score}
-          onChange={(e) => setScore(Number(e.target.value))}
+          readOnly
           className="w-full accent-green-500"
         />
         <span className="ml-4 text-sm font-semibold">{score}/100</span>

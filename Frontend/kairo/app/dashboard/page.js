@@ -1,3 +1,4 @@
+import ChatBot from "@/components/Chatbot";
 import Galaxy from "@/components/Galaxy";
 import FinancialPulse from "@/components/pulse";
 import Image from "next/image";
@@ -27,6 +28,7 @@ const page = () => {
     </div>
   </div>
     </div>
+    <ChatBot/>
     </section>
   )
 }

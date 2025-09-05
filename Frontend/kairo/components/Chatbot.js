@@ -93,7 +93,7 @@ export default function ChatBot() {
             />
             <button
               onClick={sendMessage}
-              className="rounded-xl text-gray-400 px-4 ml-14"
+              className="rounded-xl text-gray-400 px-8 ml-10"
               disabled={loading}
             >
              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-8">

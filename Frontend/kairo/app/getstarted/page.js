@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Galaxy from "@/components/Galaxy";
+import Link from "next/link";
 
 const Page = () => {
   return ( 
@@ -177,6 +178,7 @@ const Card = ({ title, text, showProgress = false, icon }) => {
 
 /* ---------- Button Component ---------- */
 const GetStarted = () => (
+  <Link href='/link2'>
   <button
     type="submit"
     className="relative flex justify-center gap-2 items-center shadow-xl text-lg 
@@ -200,6 +202,7 @@ const GetStarted = () => (
           15.0711 6.65685L8.70711 0.292893ZM9 18L9 1H7L7 18H9Z"></path>
     </svg>
   </button>
+  </Link>  
 );
 
 export default Page;

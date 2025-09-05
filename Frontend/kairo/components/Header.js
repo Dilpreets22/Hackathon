@@ -30,7 +30,7 @@ const Header = () => {
       <p className="mb-8 leading-relaxed text-sm">Kairo is an financial wellness app that securely connects to your bank accounts. It uses a powerful AI brain to organize your spending, provide a clear "Financial Pulse" score and act as a conversational co-pilot you can talk to helping you understand your money and seize the perfect moment for your financial decisions.
 </p>
       <div className="flex justify-center">
-        <Link href="/linkpage">
+        <Link href="/getstarted">
  <button
   type="submit"
   className="relative flex justify-center gap-2 items-center mx-auto shadow-xl text-sm bg-gray-50 backdrop-blur-md lg:font-semibold isolation-auto border-gray-50 

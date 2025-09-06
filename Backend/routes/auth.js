@@ -13,6 +13,11 @@ const bcrypt = require("bcryptjs");
 
 
 router.post("/register", register);
+// test route
+/* router.post("/register", (req, res) => {
+  console.log("Register route hit:", req.body);
+  res.json({ msg: "Register route working" });
+}); */
 
 router.post("/login", login);
 

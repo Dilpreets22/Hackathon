@@ -3,7 +3,7 @@ const { Configuration, PlaidApi, PlaidEnvironments } = require('plaid');
 const { plaidClient } = require('../utils/plaid');
 
 // We create a temporary "link_token" that the frontend will use to open the Plaid login popup.
-exports.createLinkToken = async (req, res) => {
+/* exports.createLinkToken = async (req, res) => {
   try {
     // The request object that we send to Plaid
     const plaidRequest = {
@@ -27,6 +27,23 @@ exports.createLinkToken = async (req, res) => {
     // Log any errors to the console for debugging
     console.error("Error creating link token:", error.response ? error.response.data : error.message);
     res.status(500).send("An error occurred while creating the link token.");
+  }
+}; */
+
+exports.createLinkToken = async (req, res) => {
+  try {
+    const response = await plaidClient.linkTokenCreate({
+      user: { client_user_id: req.user.id }, // must be a unique id per user
+      client_name: "Kairo",
+      products: [ "transactions"], // adjust as needed
+      language: "en",
+      country_codes: ["US"], // change based on your Plaid config
+    });
+
+    res.json({ link_token: response.data.link_token });
+  } catch (err) {
+    console.error("Error creating link token:", err.response?.data || err.message);
+    res.status(500).json({ error: "Failed to create link token" });
   }
 };
 
@@ -91,7 +108,7 @@ exports.getTransactions = async (req, res) => {
         id: t.transaction_id,
         name: t.merchant_name || t.name, // Use merchant name if available, otherwise the default name
         amount: t.amount,
-        currency: t.iso_currency_code,
+        // currency: t.iso_currency_code,
         date: t.date,
         logo_url: t.logo_url // This is useful for the frontend UI
     }));

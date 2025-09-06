@@ -1,27 +1,32 @@
-// components/FinancialPulse.tsx
 "use client";
 
 import { useState, useEffect } from "react";
+import api from "../services/api"; 
 
 export default function FinancialPulse() {
-  // Local state for score (default 50)
-  const [score, setScore] = useState(50);
+  const [score, setScore] = useState(null); // backend se aayega
+  const [insight, setInsight] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  // Example backend logic (commented out)
-  /*
+  // Fetch score from backend
   useEffect(() => {
-    async function fetchScore() {
+    async function fetchPulse() {
       try {
-        const res = await fetch("/api/score"); // Your backend API
-        const data = await res.json();
-        setScore(data.score); // Update score from backend
+        const res = await api.post("/ai/financial-pulse"); 
+        setScore(res.data.pulse_score);
+        setInsight(res.data.insight);
       } catch (error) {
-        console.error("Error fetching score:", error);
+        console.error("Error fetching pulse:", error);
+      } finally {
+        setLoading(false);
       }
     }
-    fetchScore();
+    fetchPulse();
   }, []);
-  */
+
+  if (loading) {
+    return <div className="p-6 text-center">Loading your Financial Pulse...</div>;
+  }
 
   return (
     <div className="max-w-md mx-auto bg-white shadow-lg rounded-2xl p-6">
@@ -41,12 +46,19 @@ export default function FinancialPulse() {
           type="range"
           min={0}
           max={100}
-          value={score}
-          onChange={(e) => setScore(Number(e.target.value))}
+          value={score ?? 0}
+          readOnly 
+          // onChange={(e) => setScore(Number(e.target.value))}
           className="w-full accent-green-500"
         />
         <span className="ml-4 text-sm font-semibold">{score}/100</span>
       </div>
+
+      {insight && (
+        <div className="mt-4 p-3 bg-gray-50 rounded-md text-gray-800 text-sm">
+          <strong>Insight: </strong> {insight}
+        </div>
+      )}
     </div>
   );
 }
